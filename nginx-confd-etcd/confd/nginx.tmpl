@@ -13,9 +13,10 @@
       server_name  {{.}}.localhost;
     {{ end }}
 
-    {{with getv (print "/hosts/" . "/media")}}
+
+    {{if exists (print "/hosts/" . "/media")}}
     location /media {
-      root {{.}};
+      root {{getv (print "/hosts/" . "/media")}} ;
     }
     {{ end }}
 
