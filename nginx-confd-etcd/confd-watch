@@ -2,6 +2,9 @@
 
 set -eo pipefail
 
+echo "[etcd] create hosts dir"
+curl -L http://$ETCD/v2/keys/hosts -XPUT -d dir=true
+
 echo "[nginx] booting container. ETCD: $ETCD."
 # Try to make initial configuration every 5 seconds until successful
 until confd -backend etcd -onetime -node $ETCD -config-file /etc/confd/conf.d/nginx.toml; do
