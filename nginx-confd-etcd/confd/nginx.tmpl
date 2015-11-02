@@ -30,3 +30,14 @@
     }
   {{ end }}
 {{ end }}
+
+{{range lsdir "/hosts/static"}}
+  server {
+    server_name  {{getv (print "/hosts/static/" . "/server_name")}} ;
+
+    location / {
+      root {{getv (print "/hosts/static/" . "/media")}} ;
+      try_files $uri $uri/ /index.html;
+    }
+  }
+{{ end }}
