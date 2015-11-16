@@ -34,10 +34,15 @@
 {{range lsdir "/hosts/static"}}
   server {
     server_name  {{getv (print "/hosts/static/" . "/server_name")}} ;
-
+    root {{getv (print "/hosts/static/" . "/media")}} ;
     location / {
-      root {{getv (print "/hosts/static/" . "/media")}} ;
+      {{if exists (print "/hosts/static/" . "/private")}}
+          auth_basic           "closed site";
+          auth_basic_user_file {{ print (getv (print "/hosts/static/" . "/media")) "/.htpasswd" }} ;
+          autoindex on;
+      {{ else }}
       try_files $uri $uri/ /index.html;
+      {{ end }}
     }
   }
 {{ end }}
