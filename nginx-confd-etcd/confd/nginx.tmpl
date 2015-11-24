@@ -20,6 +20,8 @@
     }
     {{ end }}
 
+    client_max_body_size 100m;
+
     location / {
       proxy_pass        http://{{.}};
       proxy_redirect    off;
