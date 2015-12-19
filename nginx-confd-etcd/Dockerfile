@@ -9,6 +9,7 @@ RUN chmod +x /usr/local/bin/confd
 
 RUN mkdir -p /etc/confd/templates
 RUN mkdir -p /etc/confd/conf.d
+RUN mkdir -p /data/nginx/cache/
 
 ADD nginx.conf /etc/nginx/nginx.conf
 ADD confd/nginx.tmpl /etc/confd/templates/nginx.tmpl

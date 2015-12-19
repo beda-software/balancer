@@ -6,6 +6,8 @@
     {{end}}
     }
 
+  proxy_cache_path  {{ print "/data/nginx/cache/" . }}  levels=1:2  keys_zone={{ print . "_CACHE:100m" }} inactive=24h max_size=1g;
+
   server {
     {{if exists (print "/hosts/" . "/server_name")}}
       server_name  {{getv (print "/hosts/" . "/server_name")}} ;
@@ -29,6 +31,16 @@
       proxy_set_header  X-Real-IP        $remote_addr;
       proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
       }
+    location /static/ {
+      proxy_pass        http://{{.}};
+      proxy_redirect    off;
+      proxy_cache {{ print . "_CACHE" }};
+      proxy_cache_valid      200  1d;
+      proxy_set_header  Host             $host;
+      proxy_set_header  X-Real-IP        $remote_addr;
+      proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
+      }
+
     }
   {{ end }}
 {{ end }}
