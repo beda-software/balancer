@@ -18,3 +18,6 @@ Create static file serving
 `curl -L http://127.0.0.1:4001/v2/keys/hosts/static/hello/enable -XPUT -d value=true`
 `curl -L http://127.0.0.1:4001/v2/keys/hosts/static/hello/server_name -XPUT -d value="hello.world"`
 `curl -L http://127.0.0.1:4001/v2/keys/hosts/static/hello/media -XPUT -d value="/var/www/hello"`
+
+Create nginx base caches
+`curl -L http://127.0.0.1:4001/v2/keys/hosts/hello-world/caches/static/path -XPUT -d value="/static/"`

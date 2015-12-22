@@ -6,7 +6,12 @@
     {{end}}
     }
 
-  proxy_cache_path  {{ print "/data/nginx/cache/" . }}  levels=1:2  keys_zone={{ print . "_CACHE:100m" }} inactive=24h max_size=1g;
+
+  {{ $service := . }}
+
+  {{ range lsdir (print "/hosts/" $service "/caches") }}
+  proxy_cache_path  {{ print "/data/nginx/cache/" $service "_" . }}  levels=1:2  keys_zone={{ print $service "_" . "_CACHE:100m" }} inactive=24h max_size=1g;
+  {{ end }}
 
   server {
     {{if exists (print "/hosts/" . "/server_name")}}
@@ -30,18 +35,21 @@
       proxy_set_header  Host             $host;
       proxy_set_header  X-Real-IP        $remote_addr;
       proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
-      }
-    location /static/ {
-      proxy_pass        http://{{.}};
+    }
+
+    {{ range lsdir (print "/hosts/" $service "/caches") }}
+    location {{getv (print "/hosts/" $service "/caches/" . "/path")}} {
+      proxy_pass        http://{{ $service }};
       proxy_redirect    off;
-      proxy_cache {{ print . "_CACHE" }};
-      proxy_cache_valid      200  1d;
       proxy_set_header  Host             $host;
       proxy_set_header  X-Real-IP        $remote_addr;
       proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
-      }
-
+      proxy_cache {{ print $service "_" . "_CACHE" }};
+      proxy_cache_valid      200  1d;
     }
+    {{ end }}
+
+  }
   {{ end }}
 {{ end }}
 
