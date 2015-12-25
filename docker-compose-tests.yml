@@ -1,0 +1,6 @@
+tests:
+  build: ./tests
+  links:
+  - confd:confd
+  volumes:
+  - ./tests/:/app/user/

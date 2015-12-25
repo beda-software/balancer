@@ -14,12 +14,12 @@ registrator:
   -  etcd:etcd
 
 confd:
-  build: ./nginx-confd-etcd
+  build: ./balancer
   links:
   -  etcd:etcd
   volumes:
-  - ./nginx-confd-etcd/confd/nginx.tmpl:/etc/confd/templates/nginx.tmpl
+  - ./balancer/confd/nginx.tmpl:/etc/confd/templates/nginx.tmpl
   environment:
-    - ETCD=172.17.0.1:4001
+  - ETCD=172.17.0.1:4001
   ports:
   - 80:80
