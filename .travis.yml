@@ -1,0 +1,16 @@
+sudo: required
+
+language: python
+
+services:
+  - docker
+
+before_install:
+- pip install docker-compose
+- docker pull tutum/hello-world
+- docker-compose -f docker-compose.yml -f docker-compose-tests.yml build
+- docker-compose up -d
+
+script:
+- ./run_tests.sh
+
