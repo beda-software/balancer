@@ -1,2 +1,7 @@
-requests
+docker-py
+ipython
+ipdb
+lxml
 pytest
+python-etcd
+requests

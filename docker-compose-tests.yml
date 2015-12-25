@@ -4,3 +4,4 @@ tests:
   - confd:confd
   volumes:
   - ./tests/:/app/user/
+  - /var/run/docker.sock:/var/run/docker.sock

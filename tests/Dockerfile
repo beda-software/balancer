@@ -5,4 +5,4 @@ RUN pip install --src /src -r requirements.txt
 RUN mkdir -p /app/user
 WORKDIR /app/user
 ADD . /app/user/
-CMD py.test
+ENTRYPOINT [ "py.test" ]
