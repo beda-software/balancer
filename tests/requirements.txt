@@ -1,4 +1,4 @@
-docker-py
+docker-py==1.5.0
 ipython
 ipdb
 lxml
