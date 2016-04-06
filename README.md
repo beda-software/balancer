@@ -1,4 +1,4 @@
-##brogency/balancer ![Buid Status](https://travis-ci.org/Brogency/balancer.svg?branch=master)
+##brogency/balancer [![Buid Status](https://travis-ci.org/Brogency/balancer.svg?branch=master)](https://travis-ci.org/Brogency/balancer)
 
 Load balanser build with etcd, conf and nginx, see configuration below.
 
