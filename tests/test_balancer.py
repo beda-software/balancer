@@ -25,7 +25,7 @@ def tutum_hello_world(request):
 @pytest.fixture(scope='module')
 def etcd(request):
     import etcd
-    return etcd.Client(host='172.17.0.1', port=4001)
+    return etcd.Client(host='etcd', port=4001)
 
 
 def test_nginx_is_available():

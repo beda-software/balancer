@@ -2,6 +2,7 @@ tests:
   build: ./tests
   links:
   - confd:confd
+  - etcd:etcd
   volumes:
   - ./tests/:/app/user/
   - /var/run/docker.sock:/var/run/docker.sock
