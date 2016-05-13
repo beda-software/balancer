@@ -16,5 +16,4 @@ script:
 - docker pull microbox/etcd:latest
 - docker pull gliderlabs/registrator:latest
 - docker-compose -f docker-compose.yml -f docker-compose-tests.yml build
-- docker-compose up -d
 - ./run_tests.sh
