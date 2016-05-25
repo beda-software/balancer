@@ -33,7 +33,7 @@
       proxy_pass        http://{{.}};
       proxy_redirect    off;
       {{if exists (print "/hosts/" . "/proxy_read_timeout")}}
-      proxy_read_timeout  {getv (print "/hosts/" . "/proxy_read_timeout")}} ;
+      proxy_read_timeout  {{getv (print "/hosts/" . "/proxy_read_timeout")}} ;
       {{ else }}
       proxy_read_timeout 60;
       {{ end}}
