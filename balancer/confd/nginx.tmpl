@@ -32,6 +32,11 @@
     location / {
       proxy_pass        http://{{.}};
       proxy_redirect    off;
+      {{if exists (print "/hosts/" . "/proxy_read_timeout")}}
+      proxy_read_timeout  {getv (print "/hosts/" . "/proxy_read_timeout")}} ;
+      {{ else }}
+      proxy_read_timeout 60;
+      {{ end}}
       proxy_set_header  Host             $host;
       proxy_set_header  X-Real-IP        $remote_addr;
       proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
