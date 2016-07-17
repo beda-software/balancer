@@ -1,112 +1,108 @@
 {{range lsdir "/services"}}
   {{if exists (print "/hosts/" . "/enable")}}
     upstream {{.}} {
-    {{ range getvs (print "/services/" . "/*")}}
+    {{range getvs (print "/services/" . "/*")}}
       server {{.}};
     {{end}}
     }
 
+  {{$service := .}}
 
-  {{ $service := . }}
-
-  {{ range lsdir (print "/hosts/" $service "/caches") }}
-  proxy_cache_path  {{ print "/data/nginx/cache/" $service "_" . }}  levels=1:2  keys_zone={{ print $service "_" . "_CACHE:100m" }} inactive=24h max_size=1g;
-  {{ end }}
+  {{range lsdir (print "/hosts/" $service "/caches")}}
+  proxy_cache_path  {{print "/data/nginx/cache/" $service "_" .}}  levels=1:2  keys_zone={{print $service "_" . "_CACHE:100m"}} inactive=24h max_size=1g;
+  {{end}}
 
   server {
     {{if exists (print "/hosts/" . "/server_name")}}
-      server_name  {{getv (print "/hosts/" . "/server_name")}} ;
-    {{ else }}
+      server_name  {{getv (print "/hosts/" . "/server_name")}};
+    {{else}}
       server_name  {{.}}.localhost;
-    {{ end }}
-
+    {{end}}
 
     {{if exists (print "/hosts/" . "/media")}}
     location /media {
       root {{getv (print "/hosts/" . "/media")}} ;
     }
-    {{ end }}
+    {{end}}
 
     client_max_body_size 100m;
 
     location / {
       proxy_pass        http://{{.}};
       proxy_redirect    off;
-      {{if exists (print "/hosts/" . "/proxy_read_timeout")}}
+      {{ if exists (print "/hosts/" . "/proxy_read_timeout") }}
       proxy_read_timeout  {{getv (print "/hosts/" . "/proxy_read_timeout")}} ;
-      {{ else }}
+      {{else}}
       proxy_read_timeout 60;
-      {{ end}}
+      {{end}}
       proxy_set_header  Host             $host;
       proxy_set_header  X-Real-IP        $remote_addr;
       proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
     }
 
-    {{ range lsdir (print "/hosts/" $service "/caches") }}
+    {{range lsdir (print "/hosts/" $service "/caches")}}
     location {{getv (print "/hosts/" $service "/caches/" . "/path")}} {
-      proxy_pass        http://{{ $service }};
+      proxy_pass        http://{{$service}};
       proxy_redirect    off;
       proxy_set_header  Host             $host;
       proxy_set_header  X-Real-IP        $remote_addr;
       proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
-      proxy_cache {{ print $service "_" . "_CACHE" }};
+      proxy_cache {{print $service "_" . "_CACHE"}};
       proxy_cache_valid      200  1d;
     }
-    {{ end }}
-
+    {{end}}
   }
-  
+
   {{if exists (print "/hosts/" . "/ssl/enable")}}
   server {
-    {{if exists (print "/hosts/" . "/server_name")}}
-      server_name  {{getv (print "/hosts/" . "/server_name")}} ;
-    {{ else }}
-      server_name  {{.}}.localhost;
-    {{ end }}
-    
     listen 443;
     ssl on;
     ssl_certificate /etc/ssl/{{.}}.crt;
     ssl_certificate_key /etc/ssl/{{.}}.key;
 
+    {{if exists (print "/hosts/" . "/server_name")}}
+      server_name  {{getv (print "/hosts/" . "/server_name")}};
+    {{else}}
+      server_name  {{.}}.localhost;
+    {{end}}
+
     {{if exists (print "/hosts/" . "/media")}}
     location /media {
       root {{getv (print "/hosts/" . "/media")}} ;
     }
-    {{ end }}
+    {{end}}
 
     client_max_body_size 100m;
 
     location / {
       proxy_pass        http://{{.}};
       proxy_redirect    off;
-      {{if exists (print "/hosts/" . "/proxy_read_timeout")}}
+      {{ if exists (print "/hosts/" . "/proxy_read_timeout") }}
       proxy_read_timeout  {{getv (print "/hosts/" . "/proxy_read_timeout")}} ;
-      {{ else }}
+      {{else}}
       proxy_read_timeout 60;
-      {{ end}}
+      {{end}}
       proxy_set_header  Host             $host;
       proxy_set_header  X-Real-IP        $remote_addr;
       proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
     }
 
-    {{ range lsdir (print "/hosts/" $service "/caches") }}
+    {{range lsdir (print "/hosts/" $service "/caches")}}
     location {{getv (print "/hosts/" $service "/caches/" . "/path")}} {
-      proxy_pass        http://{{ $service }};
+      proxy_pass        http://{{$service}};
       proxy_redirect    off;
       proxy_set_header  Host             $host;
       proxy_set_header  X-Real-IP        $remote_addr;
       proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
-      proxy_cache {{ print $service "_" . "_CACHE" }};
+      proxy_cache {{print $service "_" . "_CACHE"}};
       proxy_cache_valid      200  1d;
     }
-    {{ end }}
+    {{end}}
+  }
+  {{end}}
 
-  } 
-  {{ end }}
-  
-  {{ end }}
-{{ end }}
+  {{end}}
+{{end}}
 
 {{range lsdir "/hosts/static"}}
   server {
@@ -114,12 +110,12 @@
     root {{getv (print "/hosts/static/" . "/media")}} ;
     location / {
       {{if exists (print "/hosts/static/" . "/private")}}
-          auth_basic           "closed site";
-          auth_basic_user_file {{ print (getv (print "/hosts/static/" . "/media")) "/.htpasswd" }} ;
-          autoindex on;
-      {{ else }}
-      try_files $uri $uri/ /index.html;
-      {{ end }}
+        auth_basic           "closed site";
+        auth_basic_user_file {{print (getv (print "/hosts/static/" . "/media")) "/.htpasswd"}};
+        autoindex on;
+      {{else}}
+        try_files $uri $uri/ /index.html;
+      {{end}}
     }
   }
-{{ end }}
+{{end}}
