@@ -55,6 +55,17 @@
 
   {{if exists (print "/hosts/" . "/ssl/enable")}}
   server {
+    listen 80;
+    {{if exists (print "/hosts/" . "/server_name")}}
+      server_name  {{getv (print "/hosts/" . "/server_name")}};
+    {{else}}
+      server_name  {{.}}.localhost;
+    {{end}}
+
+    rewrite ^ https://$server_name$request_uri? permanent;
+  }
+
+  server {
     listen 443;
     ssl on;
     ssl_certificate /etc/ssl/{{.}}.crt;
