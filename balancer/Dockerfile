@@ -1,4 +1,4 @@
-FROM nginx
+FROM nginx:1.11
 
 WORKDIR /usr/local/bin
 RUN apt-get update
