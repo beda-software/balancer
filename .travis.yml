@@ -4,7 +4,7 @@ services:
   - docker
 
 env:
-  COMPOSE_VERSION: 1.5.0
+  COMPOSE_VERSION: 1.11.2
 
 before_install:
 - curl -L https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
@@ -12,8 +12,7 @@ before_install:
 - sudo mv docker-compose /usr/local/bin
 
 script:
-- docker pull tutum/hello-world
-- docker pull microbox/etcd:latest
-- docker pull gliderlabs/registrator:latest
-- docker-compose -f docker-compose.yml -f docker-compose-tests.yml build
+- docker pull brogency/hello-world
+- docker-compose -f docker-compose.yml -f docker-compose.test.yml pull
+- docker-compose -f docker-compose.yml -f docker-compose.test.yml build
 - ./run_tests.sh

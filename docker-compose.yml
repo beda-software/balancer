@@ -1,25 +1,27 @@
-etcd:
-  image: microbox/etcd:latest
-  command: -name etcd-node1 --addr 172.17.0.1:4001
-  ports:
-  - 4001:4001
-  - 7001:7001
+version: '3'
+services:
+  etcd:
+    image: microbox/etcd:latest
+    command: -name etcd-node1 --addr 172.17.0.1:4001
+    ports:
+    - 4001:4001
+    - 7001:7001
 
-registrator:
-  command: -internal etcd://etcd:4001/services
-  image: gliderlabs/registrator:latest
-  volumes:
-  - /var/run/docker.sock:/tmp/docker.sock
-  links:
-  -  etcd:etcd
+  registrator:
+    command: -internal etcd://etcd:4001/services
+    image: gliderlabs/registrator:latest
+    volumes:
+    - /var/run/docker.sock:/tmp/docker.sock
+    depends_on:
+    -  etcd
 
-confd:
-  build: ./balancer
-  links:
-  -  etcd:etcd
-  volumes:
-  - ./balancer/confd/nginx.tmpl:/etc/confd/templates/nginx.tmpl
-  environment:
-  - ETCD=172.17.0.1:4001
-  ports:
-  - 80:80
+  confd:
+    build: ./balancer
+    depends_on:
+    -  etcd
+    volumes:
+    - ./balancer/confd/nginx.tmpl:/etc/confd/templates/nginx.tmpl
+    environment:
+    - ETCD=172.17.0.1:4001
+    ports:
+    - 80:80

@@ -1,22 +1,22 @@
 import pytest
 import requests
 import time
+import docker
 
-from lxml import html
+
+client = docker.from_env()
 
 
 @pytest.fixture(scope='function')
-def tutum_hello_world(request):
-    from docker import Client
-    cli = Client(base_url='unix://var/run/docker.sock')
-    cli.pull('tutum/hello-world')
-    container = cli.create_container(
-        image='tutum/hello-world')
-    cli.start(container=container.get('Id'))
+def hello_world_service(request):
+    container = client.containers.run(
+        'brogency/hello-world',
+        detach=True,
+        network_mode='balancer_default')
 
     def stop():
-        cli.stop(container)
-        cli.remove_container(container)
+        container.kill()
+        container.remove()
 
     request.addfinalizer(stop)
     return container
@@ -34,18 +34,12 @@ def test_nginx_is_available():
     assert 'nginx' in resp.headers['Server']
 
 
-def test_balance_routing(tutum_hello_world, etcd):
+def test_balance_routing(hello_world_service, etcd):
     etcd.write('/hosts/hello-world/enable', True)
     etcd.write('/hosts/hello-world/server_name', 'confd')
 
-    time.sleep(1)  # Wait for confd
+    time.sleep(10)  # Wait for confd
 
     resp = requests.get('http://confd/')
     assert resp.status_code == 200
-
-    tree = html.fromstring(resp.content)
-    title = tree.xpath('//title/text()')[0]
-    container_id = tree.xpath('//h3/text()')[0][-12:]
-
-    assert title == 'Hello world!'
-    assert container_id == tutum_hello_world['Id'][:12]
+    assert 'Flask inside {0}'.format(hello_world_service.id[:12]) == resp.content.decode('utf-8')

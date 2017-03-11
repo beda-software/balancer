@@ -1,6 +1,6 @@
 ##brogency/balancer
 
-Load balanser build with etcd, conf and nginx, see configuration below.
+Load balanser build with etcd, confd and nginx, see configuration below.
 
 Create host dir:  
 `curl -L http://127.0.0.1:4001/v2/keys/hosts -XPUT -d dir=true`

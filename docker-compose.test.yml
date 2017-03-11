@@ -1,0 +1,18 @@
+version: '3'
+services:
+  wait_for:
+    image: jwilder/dockerize
+    command: |
+      dockerize
+       -wait tcp://etcd:4001
+       -wait tcp://etcd:7001
+       -wait tcp://confd:80
+       -timeout 60s
+  tests:
+    build: ./tests
+    links:
+    - confd:confd
+    - etcd:etcd
+    volumes:
+    - ./tests/:/app/user/
+    - /var/run/docker.sock:/var/run/docker.sock
