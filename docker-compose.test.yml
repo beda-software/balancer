@@ -5,7 +5,6 @@ services:
     command: |
       dockerize
        -wait tcp://etcd:4001
-       -wait tcp://etcd:7001
        -wait tcp://confd:80
        -timeout 60s
   tests:
