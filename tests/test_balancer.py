@@ -31,7 +31,7 @@ def wait_config_update():
 def hello_world_service(request):
     container = client.containers.run('bedasoftware/hello-world',
                                       detach=True,
-                                      network_mode='balancer_default')
+                                      network_mode='balancer_balancer')
 
     def stop():
         container.kill()
@@ -56,21 +56,26 @@ def test_nginx_is_available():
     assert 'nginx' in resp.headers['Server']
 
 
-def test_balance_routing(hello_world_service, etcd):
+def test_balancer_routing(hello_world_service, etcd):
     with wait_config_update():
         etcd.write('/hosts/hello-world/enable', True)
-        etcd.write('/hosts/hello-world/server_name', 'confd')
+        etcd.write('/hosts/hello-world/server_name', 'hello-world.local')
 
-    resp = requests.get('http://confd/')
+    resp = requests.get('http://hello-world.local/')
     assert resp.status_code == 200
     assert 'Flask inside {0} at '.format(hello_world_service.id[:12])\
         == resp.content.decode('utf-8')
+
+    resp = requests.get('http://confd/')
+    assert resp.status_code == 200
+    assert 'the nginx web server is successfully installed' \
+        in resp.content.decode('utf-8')
 
 
 def test_balancing(hello_world_service, hello_world_service_2, etcd):
     with wait_config_update():
         etcd.write('/hosts/hello-world/enable', True)
-        etcd.write('/hosts/hello-world/server_name', 'confd')
+        etcd.write('/hosts/hello-world/server_name', 'hello-world.local')
 
     ids = {
         hello_world_service.id[:12]: False,
@@ -78,7 +83,7 @@ def test_balancing(hello_world_service, hello_world_service_2, etcd):
     }
 
     for _index in range(4):
-        resp = requests.get('http://confd/')
+        resp = requests.get('http://hello-world.local/')
         assert resp.status_code == 200
         res = re.search(r'^Flask inside ([\w\d]+)',
                         resp.content.decode('utf-8'))
@@ -87,13 +92,13 @@ def test_balancing(hello_world_service, hello_world_service_2, etcd):
     assert all(ids.values())
 
 
-def test_cache(hello_world_service, etcd):
+def test_caching(hello_world_service, etcd):
     with wait_config_update():
         etcd.write('/hosts/hello-world/enable', True)
-        etcd.write('/hosts/hello-world/server_name', 'confd')
+        etcd.write('/hosts/hello-world/server_name', 'hello-world.local')
 
     for _index in range(4):
-        resp = requests.get('http://confd/')
+        resp = requests.get('http://hello-world.local/')
         assert resp.status_code == 200
         assert 'Flask inside {0} at '.format(hello_world_service.id[:12])\
             == resp.content.decode('utf-8')
@@ -104,7 +109,7 @@ def test_cache(hello_world_service, etcd):
         etcd.write('/hosts/hello-world/caches/data/path', '/data/')
 
     for _index in range(4):
-        resp = requests.get('http://confd/data/index.html')
+        resp = requests.get('http://hello-world.local/data/index.html')
         assert resp.status_code == 200
         assert 'Flask inside {0} at data/index.html'.format(
             hello_world_service.id[:12]) == resp.content.decode('utf-8')

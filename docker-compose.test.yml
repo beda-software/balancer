@@ -1,4 +1,8 @@
 version: '3'
+
+networks:
+  balancer: {}
+
 services:
   wait_for:
     image: jwilder/dockerize
@@ -7,6 +11,8 @@ services:
        -wait tcp://etcd:4001
        -wait tcp://confd:80
        -timeout 60s
+    networks:
+      - balancer
   tests:
     build: ./tests
     links:
@@ -15,3 +21,5 @@ services:
     volumes:
     - ./tests/:/app/user/
     - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - balancer

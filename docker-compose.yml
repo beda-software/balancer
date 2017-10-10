@@ -1,10 +1,16 @@
 version: '3'
+
+networks:
+  balancer: {}
+
 services:
   etcd:
     image: quay.io/coreos/etcd:v2.3.8
     command: -name etcd-node1 --addr 172.17.0.1:4001
     ports:
     - 4001:4001
+    networks:
+    - balancer
 
   registrator:
     command: -internal etcd://etcd:4001/services
@@ -13,6 +19,8 @@ services:
     - /var/run/docker.sock:/tmp/docker.sock
     depends_on:
     -  etcd
+    networks:
+    - balancer
 
   confd:
     build: ./balancer
@@ -24,3 +32,7 @@ services:
     - ETCD=172.17.0.1:4001
     ports:
     - 80:80
+    networks:
+      balancer:
+        aliases:
+        - hello-world.local
