@@ -77,7 +77,7 @@ def test_balancing(hello_world_service, hello_world_service_2, etcd):
         hello_world_service_2.id[:12]: False,
     }
 
-    for _index in range(2):
+    for _index in range(4):
         resp = requests.get('http://confd/')
         assert resp.status_code == 200
         res = re.search(r'^Flask inside ([\w\d]+)',
