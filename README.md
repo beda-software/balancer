@@ -1,7 +1,7 @@
 ## brogency/balancer [![Build Status](https://travis-ci.org/beda-software/balancer.svg?branch=master)](https://travis-ci.org/beda-software/balancer)
 
 
-Load balanser build with etcd, confd and nginx, see configuration below.
+Load balancer build with etcd, confd and nginx, see configuration below.
 
 Create host dir:  
 `curl -L http://127.0.0.1:4001/v2/keys/hosts -XPUT -d dir=true`
@@ -14,15 +14,6 @@ Enable host:
 
 Set hostname:  
 `curl -L http://127.0.0.1:4001/v2/keys/hosts/hello-world/server_name -XPUT -d value=hello2.localhost`
-
-Set media overriding:  
-`curl -L http://127.0.0.1:4001/v2/keys/hosts/hello-world/media -XPUT -d value=/home/helloworld/media`
-
-
-Create static file serving:  
-`curl -L http://127.0.0.1:4001/v2/keys/hosts/static/hello/enable -XPUT -d value=true`
-`curl -L http://127.0.0.1:4001/v2/keys/hosts/static/hello/server_name -XPUT -d value="hello.world"`
-`curl -L http://127.0.0.1:4001/v2/keys/hosts/static/hello/media -XPUT -d value="/var/www/hello"`
 
 Enable nginx base caches:  
 `curl -L http://127.0.0.1:4001/v2/keys/hosts/hello-world/caches/static/path -XPUT -d value="/static/"`

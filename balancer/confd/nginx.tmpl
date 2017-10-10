@@ -40,12 +40,6 @@
       server_name  {{.}}.localhost;
     {{end}}
 
-    {{if exists (print "/hosts/" . "/media")}}
-    location /media {
-      root {{getv (print "/hosts/" . "/media")}} ;
-    }
-    {{end}}
-
     client_max_body_size 100m;
 
     location / {
@@ -75,20 +69,4 @@
 
   }
   {{end}}
-{{end}}
-
-{{range lsdir "/hosts/static"}}
-  server {
-    server_name  {{getv (print "/hosts/static/" . "/server_name")}} ;
-    root {{getv (print "/hosts/static/" . "/media")}} ;
-    location / {
-      {{if exists (print "/hosts/static/" . "/private")}}
-        auth_basic           "closed site";
-        auth_basic_user_file {{print (getv (print "/hosts/static/" . "/media")) "/.htpasswd"}};
-        autoindex on;
-      {{else}}
-        try_files $uri $uri/ /index.html;
-      {{end}}
-    }
-  }
 {{end}}
