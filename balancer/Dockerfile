@@ -1,10 +1,9 @@
-FROM nginx:1.11
+FROM nginx:stable-alpine
 
 WORKDIR /usr/local/bin
-RUN apt-get update
-RUN apt-get install -y curl
+RUN apk add --no-cache curl
 
-RUN curl -L https://github.com/kelseyhightower/confd/releases/download/v0.10.0/confd-0.10.0-linux-amd64 -o /usr/local/bin/confd
+RUN curl -L https://github.com/kelseyhightower/confd/releases/download/v0.13.0/confd-0.13.0-linux-amd64 -o /usr/local/bin/confd
 RUN chmod +x /usr/local/bin/confd
 
 RUN mkdir -p /etc/confd/templates

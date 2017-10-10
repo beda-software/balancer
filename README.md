@@ -1,4 +1,4 @@
-## brogency/balancer [![Build Status](https://travis-ci.org/beda-software/balancer.svg?branch=master)](https://travis-ci.org/Brogency/balancer)
+## brogency/balancer [![Build Status](https://travis-ci.org/beda-software/balancer.svg?branch=master)](https://travis-ci.org/beda-software/balancer)
 
 
 Load balanser build with etcd, confd and nginx, see configuration below.
