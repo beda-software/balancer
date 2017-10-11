@@ -8,7 +8,6 @@ services:
     image: jwilder/dockerize
     command: |
       dockerize
-       -wait tcp://etcd:4001
        -wait tcp://confd:80
        -timeout 60s
     networks:
