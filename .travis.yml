@@ -10,3 +10,6 @@ before_script:
 
 script:
 - ./run_tests.sh
+
+after_script:
+- docker-compose down
