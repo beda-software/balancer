@@ -7,6 +7,8 @@ before_script:
 - docker pull bedasoftware/hello-world
 - docker-compose -f docker-compose.yml -f docker-compose.test.yml pull
 - docker-compose -f docker-compose.yml -f docker-compose.test.yml build
+- docker ps
+- docker volume ls
 
 script:
 - ./run_tests.sh
