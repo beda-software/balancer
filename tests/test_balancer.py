@@ -32,6 +32,11 @@ def hello_world_service(docker_client, etcd_client):
 
     container.kill()
     container.remove()
+    try:
+        etcd_client.delete('/hosts/hello-world/enable')
+        etcd_client.delete('/hosts/hello-world/server_name')
+    except etcd.EtcdKeyNotFound:
+        pass
 
 
 hello_world_service_2 = hello_world_service
@@ -51,9 +56,11 @@ def wait_config_update(docker_client):
 
     yield
 
-    while 'Target config /etc/nginx/conf.d/sites.conf has been updated' \
-          not in container.logs().decode('utf-8').split('\n')[-2] or \
-          log_len == count_log_len(container):
+    while True:
+        for log in container.logs().decode('utf-8').split('\n')[log_len:]:
+            if 'Target config /etc/nginx/conf.d/sites.conf has been updated' \
+               in log:
+                return
         time.sleep(1)
 
 
@@ -91,14 +98,20 @@ def test_balancing(hello_world_service, hello_world_service_2):
     assert all(ids.values())
 
 
-def test_caching(hello_world_service, etcd_client, docker_client):
+@pytest.fixture
+def cleanup_cache(etcd_client):
+    yield
+    etcd_client.delete('/hosts/hello-world/caches/data/path')
+
+
+def test_caching(hello_world_service, etcd_client, docker_client,
+                 cleanup_cache):
     for _index in range(4):
         resp = requests.get('http://hello-world.local/')
         assert resp.status_code == 200
         assert 'Flask inside {0} at '.format(hello_world_service.id[:12])\
             == resp.content.decode('utf-8')
-    assert len(hello_world_service.logs().decode('utf-8').split('\n')) \
-        == 6
+    assert count_log_len(hello_world_service) == 6
 
     with wait_config_update(docker_client):
         etcd_client.write('/hosts/hello-world/caches/data/path', '/data/')
@@ -109,5 +122,4 @@ def test_caching(hello_world_service, etcd_client, docker_client):
         assert 'Flask inside {0} at data/index.html'.format(
             hello_world_service.id[:12]) == resp.content.decode('utf-8')
 
-    assert len(hello_world_service.logs().decode('utf-8').split('\n')) \
-        == 7
+    assert count_log_len(hello_world_service) == 7
