@@ -6,5 +6,6 @@ import re
 import etcd
 from contextlib import contextmanager
 
-def test_that_nginx_is_available():
-	assert False
+
+def test_nginx():
+    assert False
