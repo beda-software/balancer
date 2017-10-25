@@ -32,14 +32,22 @@ def hello_world_service(docker_client, etcd_client):
 
     container.kill()
     container.remove()
-    try:
-        etcd_client.delete('/hosts/hello-world/enable')
-        etcd_client.delete('/hosts/hello-world/server_name')
-    except etcd.EtcdKeyNotFound:
-        pass
+    etcd_client.delete('/hosts/hello-world/enable')
+    etcd_client.delete('/hosts/hello-world/server_name')
 
 
-hello_world_service_2 = hello_world_service
+@pytest.fixture(scope='function')
+def hello_world_service_2(docker_client, etcd_client):
+    with wait_config_update(docker_client):
+        container = docker_client.containers.run(
+            'bedasoftware/hello-world',
+            detach=True,
+            network_mode='balancer_balancer')
+
+    yield container
+
+    container.kill()
+    container.remove()
 
 
 def count_log_len(container):
@@ -56,12 +64,15 @@ def wait_config_update(docker_client):
 
     yield
 
-    while True:
+    index = 0
+    while index < 10:
         for log in container.logs().decode('utf-8').split('\n')[log_len:]:
             if 'Target config /etc/nginx/conf.d/sites.conf has been updated' \
                in log:
+                time.sleep(1)
                 return
         time.sleep(1)
+        index = index + 1
 
 
 def test_nginx_is_available():
@@ -98,15 +109,18 @@ def test_balancing(hello_world_service, hello_world_service_2):
     assert all(ids.values())
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def setup_cache(etcd_client):
     yield lambda: etcd_client.write('/hosts/hello-world/caches/data/path',
                                     '/data/')
 
-    etcd_client.delete('/hosts/hello-world/caches/data/path')
+    try:
+        etcd_client.delete('/hosts/hello-world/caches/data/path')
+    except etcd.EtcdKeyNotFound:
+        pass
 
 
-def test_caching(hello_world_service, etcd_client, docker_client, setup_cache):
+def test_caching(docker_client, hello_world_service, setup_cache):
     for _index in range(4):
         resp = requests.get('http://hello-world.local/')
         assert resp.status_code == 200
