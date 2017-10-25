@@ -99,7 +99,7 @@ def test_balancing(hello_world_service, hello_world_service_2):
 
 
 @pytest.fixture
-def cleanup_cache(etcd_client):
+def setup_cache(etcd_client):
     yield lambda: etcd_client.write('/hosts/hello-world/caches/data/path',
                                     '/data/')
 
