@@ -4,14 +4,6 @@ networks:
   balancer: {}
 
 services:
-  wait_for:
-    image: jwilder/dockerize
-    command: |
-      dockerize
-       -wait tcp://confd:80
-       -timeout 60s
-    networks:
-      - balancer
   tests:
     build: ./tests
     links:
