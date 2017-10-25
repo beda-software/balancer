@@ -1,14 +1,10 @@
 version: '3'
 
-networks:
-  balancer: {}
-
 services:
   tests:
     build: ./tests
-    links:
-    - confd:confd
-    - etcd:etcd
+    depends_on:
+    - confd
     volumes:
     - ./tests/:/app/user/
     - /var/run/docker.sock:/var/run/docker.sock

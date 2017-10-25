@@ -1,6 +1,5 @@
 docker
-ipython
-ipdb
+pdbpp
 pytest
 python-etcd
 requests
