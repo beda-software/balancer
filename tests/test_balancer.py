@@ -100,12 +100,13 @@ def test_balancing(hello_world_service, hello_world_service_2):
 
 @pytest.fixture
 def cleanup_cache(etcd_client):
-    yield
+    yield lambda: etcd_client.write('/hosts/hello-world/caches/data/path',
+                                    '/data/')
+
     etcd_client.delete('/hosts/hello-world/caches/data/path')
 
 
-def test_caching(hello_world_service, etcd_client, docker_client,
-                 cleanup_cache):
+def test_caching(hello_world_service, etcd_client, docker_client, setup_cache):
     for _index in range(4):
         resp = requests.get('http://hello-world.local/')
         assert resp.status_code == 200
@@ -114,7 +115,7 @@ def test_caching(hello_world_service, etcd_client, docker_client,
     assert count_log_len(hello_world_service) == 6
 
     with wait_config_update(docker_client):
-        etcd_client.write('/hosts/hello-world/caches/data/path', '/data/')
+        setup_cache()
 
     for _index in range(4):
         resp = requests.get('http://hello-world.local/data/index.html')
